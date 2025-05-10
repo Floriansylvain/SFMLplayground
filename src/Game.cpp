@@ -11,7 +11,8 @@
 Game::Game()
     : m_inputManager(
           std::bind(&Game::processKeyPressed, this, std::placeholders::_1),
-          std::bind(&Game::processMousePressed, this, std::placeholders::_1)) {
+          std::bind(&Game::processMousePressed, this, std::placeholders::_1)),
+      m_debugLines(sf::PrimitiveType::Lines) {
     m_window.create(sf::VideoMode({Constants::WIDTH, Constants::HEIGHT}),
                     "SFML Playground");
     m_window.setVerticalSyncEnabled(true);
@@ -58,15 +59,19 @@ void Game::update() {
 void Game::render() {
     m_window.clear(sf::Color::Black);
 
+    m_debugLines.clear();
+
     for (const auto &object : m_objects) {
         object->draw(m_window);
 
         auto *ball = dynamic_cast<Ball *>(object.get());
         if (!ball) continue;
 
-        DebugDraw::drawDirectionLine(m_window, ball);
-        DebugDraw::drawVelocityLine(m_window, ball);
+        DebugDraw::addDirectionLine(m_debugLines, ball, m_window);
+        DebugDraw::addVelocityLine(m_debugLines, ball);
     }
+
+    DebugDraw::drawBatchedLines(m_window, m_debugLines);
 
     m_window.display();
 }

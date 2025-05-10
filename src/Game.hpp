@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/VertexArray.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
@@ -20,6 +21,7 @@ class Game {
     std::vector<std::unique_ptr<PhysicalObject>> m_objects;
     sf::Clock m_clock;
     InputManager m_inputManager;
+    sf::VertexArray m_debugLines;
     void processKeyPressed(const sf::Event::KeyPressed& keyPressed);
     void processMousePressed(const sf::Event::MouseButtonPressed& mousePressed);
     void handleMouseClick(const sf::Vector2i& mousePos);

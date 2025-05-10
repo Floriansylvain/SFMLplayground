@@ -15,7 +15,8 @@ class Ball : public PhysicalObject {
     void handleWallCollision();
 
    public:
-    Ball(float radius, const sf::Vector2f& pos, const sf::Vector2f& vel);
+    Ball(float radius, const sf::Vector2f& pos, const sf::Vector2f& vel,
+         const sf::Color& color);
 
     void update(float dt) override;
     void draw(sf::RenderWindow& window) override;

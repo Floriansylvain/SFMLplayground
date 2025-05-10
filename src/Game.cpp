@@ -3,6 +3,7 @@
 #include <SFML/Window/Event.hpp>
 #include <cmath>
 
+#include "BallFactory.hpp"
 #include "Constants.hpp"
 #include "DebugDraw.hpp"
 #include "VectorMath.hpp"
@@ -16,10 +17,11 @@ Game::Game()
     m_window.setVerticalSyncEnabled(true);
     m_timeScale = 1.0f;
     m_objects.clear();
-    m_objects.push_back(std::make_unique<Ball>(
-        Constants::BALL_RADIUS,
-        sf::Vector2f(Constants::WIDTH / 2.f, Constants::HEIGHT / 4.f),
-        sf::Vector2f(400.f, 0.f)));
+
+    auto balls = BallFactory::generateBalls();
+    for (auto &ball : balls) {
+        m_objects.push_back(std::move(ball));
+    }
 }
 
 void Game::processKeyPressed(const sf::Event::KeyPressed &kP) {
@@ -37,14 +39,15 @@ void Game::processMousePressed(const sf::Event::MouseButtonPressed &mP) {
 }
 
 void Game::handleMouseClick(const sf::Vector2i &mousePos) {
-    auto *ball = dynamic_cast<Ball *>(m_objects[0].get());
-    if (!ball) return;
-
     sf::Vector2f mouseWorld(static_cast<float>(mousePos.x),
                             static_cast<float>(mousePos.y));
-    sf::Vector2f dir = mouseWorld - ball->getPosition();
+    for (auto &object : m_objects) {
+        auto *ball = dynamic_cast<Ball *>(object.get());
+        if (!ball) continue;
 
-    ball->applyImpulse(Constants::IMPULSE * VectorMath::normalize(dir));
+        sf::Vector2f dir = mouseWorld - ball->getPosition();
+        ball->applyImpulse(Constants::IMPULSE * VectorMath::normalize(dir));
+    }
 }
 
 void Game::update() {
@@ -54,10 +57,13 @@ void Game::update() {
 
 void Game::render() {
     m_window.clear(sf::Color::Black);
-    for (auto &object : m_objects) object->draw(m_window);
 
-    auto *ball = dynamic_cast<Ball *>(m_objects[0].get());
-    if (ball) {
+    for (const auto &object : m_objects) {
+        object->draw(m_window);
+
+        auto *ball = dynamic_cast<Ball *>(object.get());
+        if (!ball) continue;
+
         DebugDraw::drawDirectionLine(m_window, ball);
         DebugDraw::drawVelocityLine(m_window, ball);
     }

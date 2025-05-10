@@ -4,7 +4,8 @@
 
 #include "Constants.hpp"
 
-Ball::Ball(float radius, const sf::Vector2f& pos, const sf::Vector2f& vel)
+Ball::Ball(float radius, const sf::Vector2f& pos, const sf::Vector2f& vel,
+           const sf::Color& color)
     : m_radius(radius),
       m_velocity(vel),
       m_lastPosition(pos),
@@ -12,7 +13,7 @@ Ball::Ball(float radius, const sf::Vector2f& pos, const sf::Vector2f& vel)
     m_shape.setRadius(radius);
     m_shape.setOrigin(sf::Vector2f(radius, radius));
     m_shape.setPosition(pos);
-    m_shape.setFillColor(sf::Color::Red);
+    m_shape.setFillColor(color);
 }
 
 void Ball::update(float dt) {

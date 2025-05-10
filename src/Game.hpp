@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Ball.hpp"
+#include "InputManager.hpp"
 #include "PhysicalObject.hpp"
 
 class Ball;
@@ -18,18 +19,12 @@ class Game {
     sf::RenderWindow m_window;
     std::vector<std::unique_ptr<PhysicalObject>> m_objects;
     sf::Clock m_clock;
-
-    void processEvents();
+    InputManager m_inputManager;
     void processKeyPressed(const sf::Event::KeyPressed& keyPressed);
     void processMousePressed(const sf::Event::MouseButtonPressed& mousePressed);
     void handleMouseClick(const sf::Vector2i& mousePos);
     void update();
     void render();
-
-    void drawLine(const sf::Vector2f& start, const sf::Vector2f& direction,
-                  float length, const sf::Color& color);
-    void drawDirectionLine(const Ball* ball);
-    void drawVelocityLine(const Ball* ball);
 
    public:
     Game();

@@ -8,6 +8,9 @@ class Ball : public PhysicalObject {
     sf::CircleShape m_shape;
     sf::Vector2f m_velocity;
     float m_radius;
+    bool m_atRest = false;
+    sf::Vector2f m_lastPosition;
+    sf::Vector2f m_pixelVelocity;
 
     void handleWallCollision();
 
@@ -19,4 +22,7 @@ class Ball : public PhysicalObject {
     void applyImpulse(const sf::Vector2f& impulse) override;
 
     sf::Vector2f getPosition() const;
+    sf::Vector2f getVelocity() const;
+    bool isAtRest() const;
+    sf::Vector2f getPixelVelocity() const { return m_pixelVelocity; }
 };

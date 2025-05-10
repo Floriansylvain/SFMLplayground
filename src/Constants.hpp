@@ -8,4 +8,5 @@ constexpr float RESTITUTION = 0.8f;
 constexpr float FRICTION = 0.9f;
 constexpr float BALL_RADIUS = 20.f;
 constexpr float IMPULSE = 3000.f;
+constexpr float REST_PIXEL_VELOCITY = 2.0f;
 }  // namespace Constants

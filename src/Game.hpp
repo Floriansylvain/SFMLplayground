@@ -6,8 +6,10 @@
 #include <memory>
 #include <vector>
 
+#include "Ball.hpp"
 #include "PhysicalObject.hpp"
 
+class Ball;
 class PhysicalObject;
 
 class Game {
@@ -23,6 +25,11 @@ class Game {
     void handleMouseClick(const sf::Vector2i& mousePos);
     void update();
     void render();
+
+    void drawLine(const sf::Vector2f& start, const sf::Vector2f& direction,
+                  float length, const sf::Color& color);
+    void drawDirectionLine(const Ball* ball);
+    void drawVelocityLine(const Ball* ball);
 
    public:
     Game();

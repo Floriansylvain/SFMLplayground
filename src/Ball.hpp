@@ -11,8 +11,9 @@ class Ball : public PhysicalObject {
     bool m_atRest = false;
     sf::Vector2f m_lastPosition;
     sf::Vector2f m_pixelVelocity;
-
+    sf::Color m_baseColor;
     void handleWallCollision(const sf::Vector2f& windowSize);
+    void updateColor();
 
    public:
     Ball(float radius, const sf::Vector2f& pos, const sf::Vector2f& vel,

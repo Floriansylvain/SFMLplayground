@@ -9,7 +9,8 @@ Ball::Ball(float radius, const sf::Vector2f& pos, const sf::Vector2f& vel,
     : m_radius(radius),
       m_velocity(vel),
       m_lastPosition(pos),
-      m_pixelVelocity(vel) {
+      m_pixelVelocity(vel),
+      m_baseColor(color) {
     m_shape.setRadius(radius);
     m_shape.setOrigin(sf::Vector2f(radius, radius));
     m_shape.setPosition(pos);
@@ -25,7 +26,50 @@ void Ball::update(float dt, const sf::Vector2f& windowSize) {
     m_pixelVelocity = (currentPosition - m_lastPosition) / dt;
     m_lastPosition = currentPosition;
 
+    updateColor();
     handleWallCollision(windowSize);
+}
+
+void Ball::updateColor() {
+    float speed =
+        std::sqrt(m_velocity.x * m_velocity.x + m_velocity.y * m_velocity.y);
+
+    const float MAX_SPEED = 2000.0f;
+    float t = std::min(speed / MAX_SPEED, 1.0f);
+
+    sf::Color targetColor;
+
+    if (t < 0.33f) {
+        float scaledT = t * 3.0f;
+        targetColor.r = static_cast<std::uint8_t>(0 + scaledT * 128);
+        targetColor.g = static_cast<std::uint8_t>(0);
+        targetColor.b = static_cast<std::uint8_t>(255);
+    } else if (t < 0.66f) {
+        float scaledT = (t - 0.33f) * 3.0f;
+        targetColor.r = static_cast<std::uint8_t>(128 + scaledT * 127);
+        targetColor.g = static_cast<std::uint8_t>(0 + scaledT * 165);
+        targetColor.b = static_cast<std::uint8_t>(255 - scaledT * 255);
+    } else {
+        float scaledT = (t - 0.66f) * 3.0f;
+        targetColor.r = static_cast<std::uint8_t>(255);
+        targetColor.g = static_cast<std::uint8_t>(165 - scaledT * 165);
+        targetColor.b = static_cast<std::uint8_t>(0);
+    }
+
+    sf::Color currentColor = m_shape.getFillColor();
+
+    const float TRANSITION_SPEED = 0.05f;
+
+    sf::Color newColor;
+    newColor.r = static_cast<std::uint8_t>(
+        currentColor.r + TRANSITION_SPEED * (targetColor.r - currentColor.r));
+    newColor.g = static_cast<std::uint8_t>(
+        currentColor.g + TRANSITION_SPEED * (targetColor.g - currentColor.g));
+    newColor.b = static_cast<std::uint8_t>(
+        currentColor.b + TRANSITION_SPEED * (targetColor.b - currentColor.b));
+    newColor.a = 255;
+
+    m_shape.setFillColor(newColor);
 }
 
 void Ball::draw(sf::RenderWindow& window) { window.draw(m_shape); }

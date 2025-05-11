@@ -126,9 +126,15 @@ void Game::render() {
     m_debugLines.clear();
     m_drawCallCount = 0;
 
+    m_batchRenderer.clear();
+
     for (const auto &object : m_objects) {
-        object->draw(m_window);
-        ++m_drawCallCount;
+        if (auto *ball = dynamic_cast<Ball *>(object.get())) {
+            m_batchRenderer.addBall(*ball);
+        } else {
+            object->draw(m_window);
+            ++m_drawCallCount;
+        }
 
         if (!m_toggleDebug) continue;
         if (auto *ball = dynamic_cast<Ball *>(object.get())) {
@@ -136,6 +142,9 @@ void Game::render() {
             DebugDraw::addVelocityLine(m_debugLines, ball);
         }
     }
+
+    m_batchRenderer.draw(m_window);
+    ++m_drawCallCount;
 
     if (m_toggleDebug) {
         DebugDraw::drawBatchedLines(m_window, m_debugLines);

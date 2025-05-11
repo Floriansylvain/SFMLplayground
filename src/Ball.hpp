@@ -28,4 +28,6 @@ class Ball : public PhysicalObject {
     sf::Vector2f getVelocity() const;
     bool isAtRest() const;
     sf::Vector2f getPixelVelocity() const { return m_pixelVelocity; }
+    float getRadius() const { return m_radius; }
+    sf::Color getColor() const { return m_shape.getFillColor(); }
 };

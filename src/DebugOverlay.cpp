@@ -4,7 +4,7 @@
 
 DebugOverlay::DebugOverlay(const std::string& fontPath)
     : m_font(fontPath), m_text(m_font) {
-    m_text.setCharacterSize(16);
+    m_text.setCharacterSize(18);
     m_text.setFillColor(sf::Color::White);
     m_text.setPosition(sf::Vector2f(5.f, 5.f));
 }

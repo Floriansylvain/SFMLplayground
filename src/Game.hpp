@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "Ball.hpp"
+#include "BatchRenderer.hpp"
 #include "DebugOverlay.hpp"
 #include "InputManager.hpp"
 #include "PhysicalObject.hpp"
@@ -20,7 +21,7 @@ class PhysicalObject;
 
 class Game {
    private:
-    float m_timeScale = 1.0f;
+    float m_timeScale = 1.f;
     sf::RenderWindow m_window;
     sf::Vector2f m_windowSize;
     std::vector<std::unique_ptr<PhysicalObject>> m_objects;
@@ -29,7 +30,8 @@ class Game {
     sf::VertexArray m_debugLines;
     int m_drawCallCount = 0;
     DebugOverlay m_debugOverlay;
-    bool m_toggleDebug = false;
+    bool m_toggleDebug = true;
+    BatchRenderer m_batchRenderer;
 
     void processKeyPressed(const sf::Event::KeyPressed& keyPressed);
     void processMousePressed(const sf::Event::MouseButtonPressed& mousePressed);

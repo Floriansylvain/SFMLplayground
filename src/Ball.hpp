@@ -21,6 +21,7 @@ class Ball : public PhysicalObject {
     void update(float dt) override;
     void draw(sf::RenderWindow& window) override;
     void applyImpulse(const sf::Vector2f& impulse) override;
+    void resolveCollision(Ball& other);
 
     sf::Vector2f getPosition() const;
     sf::Vector2f getVelocity() const;

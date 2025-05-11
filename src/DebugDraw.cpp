@@ -37,7 +37,7 @@ void DebugDraw::addVelocityLine(sf::VertexArray& lines, const Ball* ball) {
     float velLength = VectorMath::length(velocity);
     float clampedLength = std::max(0.f, std::min(velLength, 100.f));
 
-    addLine(lines, ballCenter, velocity, clampedLength, sf::Color::Blue);
+    addLine(lines, ballCenter, velocity, clampedLength, sf::Color::Red);
 }
 
 void DebugDraw::drawBatchedLines(sf::RenderWindow& window,

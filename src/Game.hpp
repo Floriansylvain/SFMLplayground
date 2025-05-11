@@ -7,6 +7,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 #include "Ball.hpp"
@@ -34,6 +35,18 @@ class Game {
     void handleMouseClick(const sf::Vector2i& mousePos);
     void update();
     void render();
+
+    struct CellHash {
+        std::size_t operator()(const std::pair<int, int>& k) const {
+            return static_cast<std::size_t>(k.first) * 73856093 ^
+                   static_cast<std::size_t>(k.second) * 19349663;
+        }
+    };
+
+    using Cell = std::pair<int, int>;
+    using Grid = std::unordered_map<Cell, std::vector<Ball*>, CellHash>;
+    Grid buildSpatialGrid();
+    void resolveSpatialCollisions(const Grid& grid);
 
    public:
     Game();

@@ -1,7 +1,10 @@
 #include "Game.hpp"
 
 #include <SFML/Window/Event.hpp>
+#include <algorithm>
 #include <cmath>
+#include <tuple>
+#include <unordered_map>
 
 #include "BallFactory.hpp"
 #include "Constants.hpp"
@@ -57,9 +60,59 @@ void Game::handleMouseClick(const sf::Vector2i &mousePos) {
     }
 }
 
+Game::Grid Game::buildSpatialGrid() {
+    const float cellSize = 2 * Constants::BALL_RADIUS;
+    const float safeCellSize = std::max(cellSize, 0.001f);
+    Grid grid;
+    for (auto &object : m_objects) {
+        if (Ball *ball = dynamic_cast<Ball *>(object.get())) {
+            const sf::Vector2f &pos = ball->getPosition();
+            if (std::isfinite(pos.x) && std::isfinite(pos.y)) {
+                int cellX = static_cast<int>(std::floor(pos.x / safeCellSize));
+                int cellY = static_cast<int>(std::floor(pos.y / safeCellSize));
+                grid[{cellX, cellY}].push_back(ball);
+            }
+        }
+    }
+    return grid;
+}
+
+void Game::resolveSpatialCollisions(const Grid &grid) {
+    static const Cell forwardNeighbors[] = {
+        {0, 0}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}};
+    for (const auto &[cell, cellBalls] : grid) {
+        for (const auto &offset : forwardNeighbors) {
+            Cell neighborCell = {cell.first + offset.first,
+                                 cell.second + offset.second};
+            auto neighborIt = grid.find(neighborCell);
+            if (neighborIt == grid.end()) continue;
+            if (neighborCell == cell) {
+                for (size_t i = 0; i < cellBalls.size(); ++i) {
+                    for (size_t j = i + 1; j < cellBalls.size(); ++j) {
+                        cellBalls[i]->resolveCollision(*cellBalls[j]);
+                    }
+                }
+            } else {
+                for (Ball *ballA : cellBalls) {
+                    for (Ball *ballB : neighborIt->second) {
+                        ballA->resolveCollision(*ballB);
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Game::update() {
     float dt = m_clock.restart().asSeconds() * m_timeScale;
-    for (auto &object : m_objects) object->update(dt);
+    if (dt > 0.1f) dt = 0.1f;
+
+    for (auto &object : m_objects) {
+        object->update(dt);
+    }
+
+    auto grid = buildSpatialGrid();
+    resolveSpatialCollisions(grid);
 }
 
 void Game::render() {

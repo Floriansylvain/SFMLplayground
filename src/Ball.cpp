@@ -79,3 +79,33 @@ void Ball::handleWallCollision() {
 
     m_shape.setPosition(pos);
 }
+
+void Ball::resolveCollision(Ball& other) {
+    sf::Vector2f posA = getPosition();
+    sf::Vector2f posB = other.getPosition();
+    sf::Vector2f delta = posB - posA;
+    float dist = std::sqrt(delta.x * delta.x + delta.y * delta.y);
+    float minDist = m_radius + other.m_radius;
+
+    if (dist >= minDist || dist < 1e-6f) return;
+
+    sf::Vector2f normal = delta / dist;
+    float overlap = minDist - dist;
+    m_shape.move(-normal * (overlap / 2.f));
+    other.m_shape.move(normal * (overlap / 2.f));
+
+    sf::Vector2f vA = m_velocity;
+    sf::Vector2f vB = other.m_velocity;
+    float vA_n = vA.x * normal.x + vA.y * normal.y;
+    float vB_n = vB.x * normal.x + vB.y * normal.y;
+
+    float restitution = Constants::RESTITUTION;
+    float vA_n_new = vB_n * restitution;
+    float vB_n_new = vA_n * restitution;
+
+    m_velocity += (vA_n_new - vA_n) * normal;
+    other.m_velocity += (vB_n_new - vB_n) * normal;
+
+    m_atRest = false;
+    other.m_atRest = false;
+}

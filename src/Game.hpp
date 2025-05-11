@@ -22,6 +22,7 @@ class Game {
    private:
     float m_timeScale = 1.0f;
     sf::RenderWindow m_window;
+    sf::Vector2f m_windowSize;
     std::vector<std::unique_ptr<PhysicalObject>> m_objects;
     sf::Clock m_clock;
     InputManager m_inputManager;

@@ -12,13 +12,13 @@ class Ball : public PhysicalObject {
     sf::Vector2f m_lastPosition;
     sf::Vector2f m_pixelVelocity;
 
-    void handleWallCollision();
+    void handleWallCollision(const sf::Vector2f& windowSize);
 
    public:
     Ball(float radius, const sf::Vector2f& pos, const sf::Vector2f& vel,
          const sf::Color& color);
 
-    void update(float dt) override;
+    void update(float dt, const sf::Vector2f& windowSize) override;
     void draw(sf::RenderWindow& window) override;
     void applyImpulse(const sf::Vector2f& impulse) override;
     void resolveCollision(Ball& other);

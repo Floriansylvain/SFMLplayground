@@ -16,7 +16,7 @@ Ball::Ball(float radius, const sf::Vector2f& pos, const sf::Vector2f& vel,
     m_shape.setFillColor(color);
 }
 
-void Ball::update(float dt) {
+void Ball::update(float dt, const sf::Vector2f& windowSize) {
     if (m_atRest) return;
     m_velocity.y += Constants::GRAVITY * dt;
     m_shape.move(m_velocity * dt);
@@ -25,7 +25,7 @@ void Ball::update(float dt) {
     m_pixelVelocity = (currentPosition - m_lastPosition) / dt;
     m_lastPosition = currentPosition;
 
-    handleWallCollision();
+    handleWallCollision(windowSize);
 }
 
 void Ball::draw(sf::RenderWindow& window) { window.draw(m_shape); }
@@ -41,7 +41,7 @@ sf::Vector2f Ball::getVelocity() const { return m_velocity; }
 
 bool Ball::isAtRest() const { return m_atRest; }
 
-void Ball::handleWallCollision() {
+void Ball::handleWallCollision(const sf::Vector2f& windowSize) {
     sf::Vector2f pos = m_shape.getPosition();
 
     auto handleAxis = [&](int axis, float min, float max, float& velocity,
@@ -60,12 +60,12 @@ void Ball::handleWallCollision() {
         (axis == 0 ? pos.x : pos.y) = value;
     };
 
-    handleAxis(0, 0.f, Constants::WIDTH, m_velocity.x, m_radius,
+    handleAxis(0, 0.f, windowSize.x, m_velocity.x, m_radius,
                Constants::RESTITUTION);
-    handleAxis(1, 0.f, Constants::HEIGHT, m_velocity.y, m_radius,
+    handleAxis(1, 0.f, windowSize.y, m_velocity.y, m_radius,
                Constants::RESTITUTION);
 
-    if (pos.y + m_radius >= Constants::HEIGHT - 1.0f) {
+    if (pos.y + m_radius >= windowSize.y - 1.0f) {
         m_velocity.x *= Constants::FRICTION;
         if (std::abs(m_velocity.x) < 5.f) m_velocity.x = 0.f;
         if (std::abs(m_pixelVelocity.x) < Constants::REST_PIXEL_VELOCITY &&

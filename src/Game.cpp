@@ -21,6 +21,7 @@ Game::Game()
     m_window.create(sf::VideoMode({Constants::WIDTH, Constants::HEIGHT}),
                     "SFML Playground");
     m_window.setVerticalSyncEnabled(true);
+    m_windowSize = sf::Vector2f(Constants::WIDTH, Constants::HEIGHT);
     m_objects.clear();
 
     auto balls = BallFactory::generateBalls();
@@ -108,7 +109,11 @@ void Game::update() {
     if (dt > 0.1f) dt = 0.1f;
 
     for (auto &object : m_objects) {
-        object->update(dt);
+        if (auto *ball = dynamic_cast<Ball *>(object.get())) {
+            ball->update(dt, m_windowSize);
+        } else {
+            object->update(dt, m_windowSize);
+        }
     }
 
     auto grid = buildSpatialGrid();
@@ -143,7 +148,24 @@ void Game::render() {
 
 void Game::run() {
     while (m_window.isOpen()) {
-        m_inputManager.processEvents(m_window);
+        while (const std::optional event = m_window.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
+                m_window.close();
+                return;
+            }
+            if (const auto *resized = event->getIf<sf::Event::Resized>()) {
+                sf::Vector2f position(0.f, 0.f);
+                sf::Vector2f size(static_cast<float>(resized->size.x),
+                                  static_cast<float>(resized->size.y));
+                sf::FloatRect visibleArea(position, size);
+                m_window.setView(sf::View(visibleArea));
+                m_windowSize = size;
+            }
+            if (auto kP = event->getIf<sf::Event::KeyPressed>())
+                processKeyPressed(*kP);
+            if (auto mP = event->getIf<sf::Event::MouseButtonPressed>())
+                processMousePressed(*mP);
+        }
         update();
         render();
     }

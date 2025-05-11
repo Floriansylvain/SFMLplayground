@@ -19,7 +19,7 @@ class PhysicalObject;
 
 class Game {
    private:
-    float m_timeScale;
+    float m_timeScale = 1.0f;
     sf::RenderWindow m_window;
     std::vector<std::unique_ptr<PhysicalObject>> m_objects;
     sf::Clock m_clock;
@@ -27,6 +27,8 @@ class Game {
     sf::VertexArray m_debugLines;
     int m_drawCallCount = 0;
     DebugOverlay m_debugOverlay;
+    bool m_toggleDebug = false;
+
     void processKeyPressed(const sf::Event::KeyPressed& keyPressed);
     void processMousePressed(const sf::Event::MouseButtonPressed& mousePressed);
     void handleMouseClick(const sf::Vector2i& mousePos);

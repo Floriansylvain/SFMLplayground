@@ -18,7 +18,6 @@ Game::Game()
     m_window.create(sf::VideoMode({Constants::WIDTH, Constants::HEIGHT}),
                     "SFML Playground");
     m_window.setVerticalSyncEnabled(true);
-    m_timeScale = 1.0f;
     m_objects.clear();
 
     auto balls = BallFactory::generateBalls();
@@ -34,6 +33,10 @@ void Game::processKeyPressed(const sf::Event::KeyPressed &kP) {
     } else if (kP.code == sf::Keyboard::Key::Hyphen) {
         m_timeScale -= 0.25f;
         if (m_timeScale < 0.25f) m_timeScale = 0.25f;
+    }
+
+    if (kP.code == sf::Keyboard::Key::F3) {
+        m_toggleDebug = !m_toggleDebug;
     }
 }
 
@@ -67,20 +70,20 @@ void Game::render() {
 
     for (const auto &object : m_objects) {
         object->draw(m_window);
-        m_drawCallCount++;
+        ++m_drawCallCount;
 
-        auto *ball = dynamic_cast<Ball *>(object.get());
-        if (!ball) continue;
-
-        DebugDraw::addDirectionLine(m_debugLines, ball, m_window);
-        DebugDraw::addVelocityLine(m_debugLines, ball);
+        if (!m_toggleDebug) continue;
+        if (auto *ball = dynamic_cast<Ball *>(object.get())) {
+            DebugDraw::addDirectionLine(m_debugLines, ball, m_window);
+            DebugDraw::addVelocityLine(m_debugLines, ball);
+        }
     }
 
-    DebugDraw::drawBatchedLines(m_window, m_debugLines);
-    m_drawCallCount++;
-
-    m_debugOverlay.update(m_drawCallCount, m_timeScale, m_window);
-    m_debugOverlay.draw(m_window);
+    if (m_toggleDebug) {
+        DebugDraw::drawBatchedLines(m_window, m_debugLines);
+        m_debugOverlay.update(m_drawCallCount + 2, m_timeScale, m_window);
+        m_debugOverlay.draw(m_window);
+    }
 
     m_window.display();
 }

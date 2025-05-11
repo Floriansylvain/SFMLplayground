@@ -8,9 +8,10 @@ float length(const sf::Vector2f& vector) {
 }
 
 sf::Vector2f normalize(const sf::Vector2f& vector) {
-    float len = length(vector);
-    if (len > 0.0001f) {
-        return vector / len;
+    float squaredLen = vector.x * vector.x + vector.y * vector.y;
+    if (squaredLen > 0.0001f) {
+        float invLen = 1.0f / std::sqrt(squaredLen);
+        return sf::Vector2f(vector.x * invLen, vector.y * invLen);
     }
     return vector;
 }

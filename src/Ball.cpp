@@ -31,6 +31,15 @@ void Ball::update(float dt, const sf::Vector2f& windowSize) {
 }
 
 void Ball::updateColor() {
+    float currentSpeed =
+        std::sqrt(m_velocity.x * m_velocity.x + m_velocity.y * m_velocity.y);
+
+    static float lastSpeed = 0.0f;
+    if (std::abs(currentSpeed - lastSpeed) < 10.0f) {
+        return;
+    }
+    lastSpeed = currentSpeed;
+
     float speed =
         std::sqrt(m_velocity.x * m_velocity.x + m_velocity.y * m_velocity.y);
 
@@ -39,21 +48,21 @@ void Ball::updateColor() {
 
     sf::Color targetColor;
 
-    if (t < 0.33f) {
+    if (t < 0.33f) {  // Red to orange
         float scaledT = t * 3.0f;
-        targetColor.r = static_cast<std::uint8_t>(0 + scaledT * 128);
-        targetColor.g = static_cast<std::uint8_t>(0);
-        targetColor.b = static_cast<std::uint8_t>(255);
-    } else if (t < 0.66f) {
-        float scaledT = (t - 0.33f) * 3.0f;
-        targetColor.r = static_cast<std::uint8_t>(128 + scaledT * 127);
+        targetColor.r = static_cast<std::uint8_t>(255);
         targetColor.g = static_cast<std::uint8_t>(0 + scaledT * 165);
-        targetColor.b = static_cast<std::uint8_t>(255 - scaledT * 255);
-    } else {
+        targetColor.b = static_cast<std::uint8_t>(0);
+    } else if (t < 0.66f) {  // Orange to yellow
+        float scaledT = (t - 0.33f) * 3.0f;
+        targetColor.r = static_cast<std::uint8_t>(255);
+        targetColor.g = static_cast<std::uint8_t>(165 + scaledT * 90);
+        targetColor.b = static_cast<std::uint8_t>(0);
+    } else {  // Yellow to white
         float scaledT = (t - 0.66f) * 3.0f;
         targetColor.r = static_cast<std::uint8_t>(255);
-        targetColor.g = static_cast<std::uint8_t>(165 - scaledT * 165);
-        targetColor.b = static_cast<std::uint8_t>(0);
+        targetColor.g = static_cast<std::uint8_t>(255);
+        targetColor.b = static_cast<std::uint8_t>(0 + scaledT * 255);
     }
 
     sf::Color currentColor = m_shape.getFillColor();

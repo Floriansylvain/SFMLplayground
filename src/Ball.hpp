@@ -6,17 +6,22 @@
 
 class Ball : public PhysicalObject {
    private:
-    sf::CircleShape m_shape;
+    // Position and physics data
     sf::Vector2f m_velocity;
-    float m_radius;
-    bool m_atRest = false;
     sf::Vector2f m_lastPosition;
     sf::Vector2f m_pixelVelocity;
+    float m_radius;
+
+    // Display data
+    sf::CircleShape m_shape;
     sf::Color m_baseColor;
+
+    // State flags
+    bool m_atRest = false;
+    mutable std::mutex m_mutex;
+
     void handleWallCollision(const sf::Vector2f& windowSize);
     void updateColor();
-
-    mutable std::mutex m_mutex;
 
    public:
     Ball(float radius, const sf::Vector2f& pos, const sf::Vector2f& vel,

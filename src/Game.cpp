@@ -12,7 +12,9 @@ Game::Game()
     : m_inputManager(
           std::bind(&Game::processKeyPressed, this, std::placeholders::_1),
           std::bind(&Game::processMousePressed, this, std::placeholders::_1)),
-      m_debugLines(sf::PrimitiveType::Lines) {
+      m_debugLines(sf::PrimitiveType::Lines),
+      m_drawCallCount(0),
+      m_debugOverlay("assets/consolas.ttf") {
     m_window.create(sf::VideoMode({Constants::WIDTH, Constants::HEIGHT}),
                     "SFML Playground");
     m_window.setVerticalSyncEnabled(true);
@@ -27,10 +29,11 @@ Game::Game()
 
 void Game::processKeyPressed(const sf::Event::KeyPressed &kP) {
     if (kP.code == sf::Keyboard::Key::Equal) {
-        m_timeScale *= 1.1f;
+        m_timeScale += 0.25f;
+        if (m_timeScale > 10.0f) m_timeScale = 10.0f;
     } else if (kP.code == sf::Keyboard::Key::Hyphen) {
-        m_timeScale /= 1.1f;
-        if (m_timeScale < 0.1f) m_timeScale = 0.1f;
+        m_timeScale -= 0.25f;
+        if (m_timeScale < 0.25f) m_timeScale = 0.25f;
     }
 }
 
@@ -60,9 +63,11 @@ void Game::render() {
     m_window.clear(sf::Color::Black);
 
     m_debugLines.clear();
+    m_drawCallCount = 0;
 
     for (const auto &object : m_objects) {
         object->draw(m_window);
+        m_drawCallCount++;
 
         auto *ball = dynamic_cast<Ball *>(object.get());
         if (!ball) continue;
@@ -72,6 +77,10 @@ void Game::render() {
     }
 
     DebugDraw::drawBatchedLines(m_window, m_debugLines);
+    m_drawCallCount++;
+
+    m_debugOverlay.update(m_drawCallCount, m_timeScale, m_window);
+    m_debugOverlay.draw(m_window);
 
     m_window.display();
 }

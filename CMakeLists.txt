@@ -18,3 +18,9 @@ file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS src/*.hpp)
 add_executable(SFMLplayground ${SOURCES} ${HEADERS})
 target_compile_features(SFMLplayground PRIVATE cxx_std_17)
 target_link_libraries(SFMLplayground PRIVATE SFML::Graphics)
+
+add_custom_command(
+    TARGET SFMLplayground POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/src/assets $<TARGET_FILE_DIR:SFMLplayground>/assets
+)

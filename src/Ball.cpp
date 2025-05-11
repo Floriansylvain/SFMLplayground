@@ -125,6 +125,9 @@ void Ball::handleWallCollision(const sf::Vector2f& windowSize) {
 }
 
 void Ball::resolveCollision(Ball& other) {
+    std::lock_guard<std::mutex> lockA(m_mutex);
+    std::lock_guard<std::mutex> lockB(other.m_mutex);
+
     sf::Vector2f posA = getPosition();
     sf::Vector2f posB = other.getPosition();
     sf::Vector2f delta = posB - posA;
@@ -143,7 +146,7 @@ void Ball::resolveCollision(Ball& other) {
     float vA_n = vA.x * normal.x + vA.y * normal.y;
     float vB_n = vB.x * normal.x + vB.y * normal.y;
 
-    float restitution = Constants::RESTITUTION;
+    float restitution = 0.95f;
     float vA_n_new = vB_n * restitution;
     float vB_n_new = vA_n * restitution;
 

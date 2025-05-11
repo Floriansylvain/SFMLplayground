@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics/CircleShape.hpp>
+#include <mutex>
 
 #include "PhysicalObject.hpp"
 
@@ -14,6 +15,8 @@ class Ball : public PhysicalObject {
     sf::Color m_baseColor;
     void handleWallCollision(const sf::Vector2f& windowSize);
     void updateColor();
+
+    mutable std::mutex m_mutex;
 
    public:
     Ball(float radius, const sf::Vector2f& pos, const sf::Vector2f& vel,

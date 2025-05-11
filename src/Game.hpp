@@ -15,6 +15,7 @@
 #include "DebugOverlay.hpp"
 #include "InputManager.hpp"
 #include "PhysicalObject.hpp"
+#include "ThreadPool.hpp"
 
 class Ball;
 class PhysicalObject;
@@ -32,12 +33,7 @@ class Game {
     DebugOverlay m_debugOverlay;
     bool m_toggleDebug = true;
     BatchRenderer m_batchRenderer;
-
-    void processKeyPressed(const sf::Event::KeyPressed& keyPressed);
-    void processMousePressed(const sf::Event::MouseButtonPressed& mousePressed);
-    void handleMouseClick(const sf::Vector2i& mousePos);
-    void update();
-    void render();
+    ThreadPool m_threadPool;
 
     struct CellHash {
         std::size_t operator()(const std::pair<int, int>& k) const {
@@ -45,13 +41,21 @@ class Game {
                    static_cast<std::size_t>(k.second) * 19349663;
         }
     };
-
     using Cell = std::pair<int, int>;
     using Grid = std::unordered_map<Cell, std::vector<Ball*>, CellHash>;
+
+    void processKeyPressed(const sf::Event::KeyPressed& keyPressed);
+    void processMousePressed(const sf::Event::MouseButtonPressed& mousePressed);
+    void handleMouseClick(const sf::Vector2i& mousePos);
+    void update();
+    void render();
+    void updateBallsParallel(float dt);
+    void resolveSpatialCollisionsParallel(const Grid& grid);
+
     Grid buildSpatialGrid();
-    void resolveSpatialCollisions(const Grid& grid);
 
    public:
     Game();
     void run();
+    size_t getThreadCount() const { return m_threadPool.getThreadCount(); }
 };

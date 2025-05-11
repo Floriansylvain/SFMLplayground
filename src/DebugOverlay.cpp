@@ -9,8 +9,9 @@ DebugOverlay::DebugOverlay(const std::string& fontPath)
     m_text.setPosition(sf::Vector2f(5.f, 5.f));
 }
 
-void DebugOverlay::update(int drawCalls, float timescale,
-                          const sf::RenderWindow& window) {
+void DebugOverlay::update(int drawCalls, float timeScale,
+                          sf::RenderWindow& window, size_t threadCount,
+                          size_t ballsPerThread) {
     float elapsed = m_fpsClock.restart().asSeconds();
     if (elapsed > 0.f) m_fps = static_cast<int>(1.f / elapsed);
 
@@ -21,8 +22,9 @@ void DebugOverlay::update(int drawCalls, float timescale,
     oss << "Framerate: " << m_fps << " FPS\n";
     oss << "Frametime: " << (elapsed * 1000.f) << " ms\n";
     oss << "Mouse: " << mousePos.x << ", " << mousePos.y << "\n";
-    oss << "Time scale: " << timescale << "\n";
-
+    oss << "Time scale: " << timeScale << "\n";
+    oss << "\nThreads: " << threadCount;
+    oss << "\nBalls per thread: " << ballsPerThread;
     m_text.setString(oss.str());
 }
 

@@ -46,7 +46,8 @@ class Game {
 
     void processKeyPressed(const sf::Event::KeyPressed& keyPressed);
     void processMousePressed(const sf::Event::MouseButtonPressed& mousePressed);
-    void handleMouseClick(const sf::Vector2i& mousePos);
+    void impulseBalls(const sf::Vector2f& mousePos);
+    void spawnBall(const sf::Vector2f& mousePos);
     void update();
     void render();
     void updateBallsParallel(float dt);

@@ -43,24 +43,33 @@ void Game::processKeyPressed(const sf::Event::KeyPressed &kP) {
         if (m_timeScale < 0.25f) m_timeScale = 0.25f;
     }
 
-    if (kP.code == sf::Keyboard::Key::F3) {
+    if (kP.code == sf::Keyboard::Key::D) {
         m_toggleDebug = !m_toggleDebug;
     }
 }
 
 void Game::processMousePressed(const sf::Event::MouseButtonPressed &mP) {
-    if (mP.button != sf::Mouse::Button::Left) return;
-    handleMouseClick(sf::Vector2i(mP.position.x, mP.position.y));
+    sf::Vector2f mousePos(static_cast<float>(mP.position.x),
+                          static_cast<float>(mP.position.y));
+    if (mP.button == sf::Mouse::Button::Left) impulseBalls(mousePos);
+    if (mP.button == sf::Mouse::Button::Right) spawnBall(mousePos);
 }
 
-void Game::handleMouseClick(const sf::Vector2i &mousePos) {
-    sf::Vector2f mouseWorld(static_cast<float>(mousePos.x),
-                            static_cast<float>(mousePos.y));
+void Game::spawnBall(const sf::Vector2f &mousePos) {
+    auto newBallPtr = std::make_unique<Ball>(
+        Constants::BALL_RADIUS,
+        mousePos,
+        sf::Vector2f(0.f, 0.f),
+        sf::Color::Black);
+    m_objects.push_back(std::move(newBallPtr));
+}
+
+void Game::impulseBalls(const sf::Vector2f &mousePos) {
     for (auto &object : m_objects) {
         auto *ball = dynamic_cast<Ball *>(object.get());
         if (!ball) continue;
 
-        sf::Vector2f dir = mouseWorld - ball->getPosition();
+        sf::Vector2f dir = mousePos - ball->getPosition();
         ball->applyImpulse(Constants::IMPULSE * VectorMath::normalize(dir));
     }
 }

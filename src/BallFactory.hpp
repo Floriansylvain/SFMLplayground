@@ -6,5 +6,6 @@
 
 namespace BallFactory {
 std::unique_ptr<Ball> generateRandBall();
-std::vector<std::unique_ptr<Ball>> generateBalls();
+
+std::vector<std::unique_ptr<Ball> > generateBalls();
 }  // namespace BallFactory

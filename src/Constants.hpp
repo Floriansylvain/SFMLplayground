@@ -1,8 +1,8 @@
 #pragma once
 
 namespace Constants {
-constexpr unsigned WIDTH = 1920;
-constexpr unsigned HEIGHT = 1080;
+constexpr int WIDTH = 1920;
+constexpr int HEIGHT = 1080;
 constexpr float GRAVITY = 781.f;
 constexpr float RESTITUTION = 0.8f;
 constexpr float FRICTION = 0.9f;

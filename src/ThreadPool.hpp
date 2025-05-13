@@ -8,76 +8,75 @@
 #include <vector>
 
 class ThreadPool {
-   public:
-    explicit ThreadPool(size_t numThreads);
-    ~ThreadPool();
-    size_t getThreadCount() const { return workers.size(); }
+ public:
+  explicit ThreadPool(size_t numThreads);
 
-    template <class F, class... Args>
-    auto enqueue(F&& f, Args&&... args)
-        -> std::future<typename std::invoke_result<F, Args...>::type>;
+  ~ThreadPool();
 
-   private:
-    std::vector<std::thread> workers;
+  [[nodiscard]] size_t getThreadCount() const { return workers.size(); }
 
-    std::queue<std::function<void()>> tasks;
+  template <class F, class... Args>
+  auto enqueue(F &&f, Args &&...args)
+      -> std::future<std::invoke_result_t<F, Args...> >;
 
-    std::mutex queueMutex;
-    std::condition_variable condition;
-    bool stop;
+ private:
+  std::vector<std::thread> workers;
+
+  std::queue<std::function<void()> > tasks;
+
+  std::mutex queueMutex;
+  std::condition_variable condition;
+  bool stop;
 };
 
-inline ThreadPool::ThreadPool(size_t numThreads) : stop(false) {
-    for (size_t i = 0; i < numThreads; ++i) {
-        workers.emplace_back([this] {
-            while (true) {
-                std::function<void()> task;
+inline ThreadPool::ThreadPool(const size_t numThreads) : stop(false) {
+  for (size_t i = 0; i < numThreads; ++i) {
+    workers.emplace_back([this] {
+      while (true) {
+        std::function<void()> task;
+        {
+          std::unique_lock lock(this->queueMutex);
+          this->condition.wait(
+              lock, [this] { return this->stop || !this->tasks.empty(); });
 
-                {
-                    std::unique_lock<std::mutex> lock(this->queueMutex);
-                    this->condition.wait(lock, [this] {
-                        return this->stop || !this->tasks.empty();
-                    });
+          if (this->stop && this->tasks.empty()) return;
 
-                    if (this->stop && this->tasks.empty()) return;
+          task = std::move(this->tasks.front());
+          this->tasks.pop();
+        }
 
-                    task = std::move(this->tasks.front());
-                    this->tasks.pop();
-                }
-
-                task();
-            }
-        });
-    }
+        task();
+      }
+    });
+  }
 }
 
 inline ThreadPool::~ThreadPool() {
-    {
-        std::unique_lock<std::mutex> lock(queueMutex);
-        stop = true;
-    }
-    condition.notify_all();
+  {
+    std::unique_lock lock(queueMutex);
+    stop = true;
+  }
+  condition.notify_all();
 
-    for (auto& worker : workers) worker.join();
+  for (auto &worker : workers) worker.join();
 }
 
 template <class F, class... Args>
-inline auto ThreadPool::enqueue(F&& f, Args&&... args)
-    -> std::future<typename std::invoke_result<F, Args...>::type> {
-    using return_type = typename std::invoke_result<F, Args...>::type;
+auto ThreadPool::enqueue(F &&f, Args &&...args)
+    -> std::future<std::invoke_result_t<F, Args...> > {
+  using return_type = std::invoke_result_t<F, Args...>;
 
-    auto task = std::make_shared<std::packaged_task<return_type()>>(
-        std::bind(std::forward<F>(f), std::forward<Args>(args)...));
+  auto task = std::make_shared<std::packaged_task<return_type()> >(
+      std::bind(std::forward<F>(f), std::forward<Args>(args)...));
 
-    std::future<return_type> res = task->get_future();
+  std::future<return_type> res = task->get_future();
+  {
+    std::unique_lock lock(queueMutex);
+    if (stop) throw std::runtime_error("enqueue on stopped ThreadPool");
 
-    {
-        std::unique_lock<std::mutex> lock(queueMutex);
-        if (stop) throw std::runtime_error("enqueue on stopped ThreadPool");
+    tasks.emplace([task] { (*task)(); });
+  }
 
-        tasks.emplace([task]() { (*task)(); });
-    }
-
-    condition.notify_one();
-    return res;
+  condition.notify_one();
+  return res;
 }

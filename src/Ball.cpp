@@ -69,15 +69,15 @@ void Ball::updateColor() {
   constexpr float TRANSITION_SPEED = 0.05f;
 
   sf::Color newColor;
-  newColor.r = static_cast<std::uint8_t>(static_cast<float>(currentColor.r) +
-                                         TRANSITION_SPEED *
-                                             (targetColor.r - currentColor.r));
-  newColor.g = static_cast<std::uint8_t>(static_cast<float>(currentColor.g) +
-                                         TRANSITION_SPEED *
-                                             (targetColor.g - currentColor.g));
-  newColor.b = static_cast<std::uint8_t>(static_cast<float>(currentColor.b) +
-                                         TRANSITION_SPEED *
-                                             (targetColor.b - currentColor.b));
+  newColor.r = static_cast<std::uint8_t>(
+      static_cast<float>(currentColor.r) +
+      TRANSITION_SPEED * static_cast<float>(targetColor.r - currentColor.r));
+  newColor.g = static_cast<std::uint8_t>(
+      static_cast<float>(currentColor.g) +
+      TRANSITION_SPEED * static_cast<float>(targetColor.g - currentColor.g));
+  newColor.b = static_cast<std::uint8_t>(
+      static_cast<float>(currentColor.b) +
+      TRANSITION_SPEED * static_cast<float>(targetColor.b - currentColor.b));
   newColor.a = 255;
 
   m_shape.setFillColor(newColor);

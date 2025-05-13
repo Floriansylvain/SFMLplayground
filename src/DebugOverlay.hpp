@@ -19,4 +19,11 @@ class DebugOverlay {
   sf::Text m_text;
   sf::Clock m_fpsClock;
   float m_fps = 0.f;
+  float m_averageFrametime = 0.f;
+  float m_timeSinceLastAvgUpdate = 0.f;
+  float m_timeSinceLastUpdate = 0.f;
+
+  static constexpr size_t FRAME_HISTORY_SIZE = 60;
+  std::array<float, FRAME_HISTORY_SIZE> m_frameTimeHistory{};
+  size_t m_currentFrameIndex = 0u;
 };

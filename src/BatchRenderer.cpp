@@ -43,36 +43,28 @@ void BatchRenderer::addBall(const Ball &ball) {
   const float radius = ball.getRadius();
   const sf::Color color = ball.getColor();
 
-  sf::Vertex topLeft;
-  sf::Vertex topRight;
-  sf::Vertex bottomRight;
-  sf::Vertex bottomLeft;
-
-  topLeft.position = sf::Vector2f(position.x - radius, position.y - radius);
-  topRight.position = sf::Vector2f(position.x + radius, position.y - radius);
-  bottomRight.position = sf::Vector2f(position.x + radius, position.y + radius);
-  bottomLeft.position = sf::Vector2f(position.x - radius, position.y + radius);
+  sf::Vertex vertices[4];
+  vertices[0].position = sf::Vector2f(position.x - radius, position.y - radius);
+  vertices[1].position = sf::Vector2f(position.x + radius, position.y - radius);
+  vertices[2].position = sf::Vector2f(position.x + radius, position.y + radius);
+  vertices[3].position = sf::Vector2f(position.x - radius, position.y + radius);
 
   const float xSize = static_cast<float>(m_circleTexture.getSize().x);
   const float ySize = static_cast<float>(m_circleTexture.getSize().y);
+  vertices[0].texCoords = sf::Vector2f(0, 0);
+  vertices[1].texCoords = sf::Vector2f(xSize, 0);
+  vertices[2].texCoords = sf::Vector2f(xSize, ySize);
+  vertices[3].texCoords = sf::Vector2f(0, ySize);
 
-  topLeft.texCoords = sf::Vector2f(0, 0);
-  topRight.texCoords = sf::Vector2f(xSize, 0);
-  bottomRight.texCoords = sf::Vector2f(xSize, ySize);
-  bottomLeft.texCoords = sf::Vector2f(0, ySize);
+  for (auto &v : vertices) v.color = color;
 
-  topLeft.color = color;
-  topRight.color = color;
-  bottomRight.color = color;
-  bottomLeft.color = color;
+  m_vertices.append(vertices[0]);
+  m_vertices.append(vertices[1]);
+  m_vertices.append(vertices[2]);
 
-  m_vertices.append(topLeft);
-  m_vertices.append(topRight);
-  m_vertices.append(bottomRight);
-
-  m_vertices.append(topLeft);
-  m_vertices.append(bottomRight);
-  m_vertices.append(bottomLeft);
+  m_vertices.append(vertices[0]);
+  m_vertices.append(vertices[2]);
+  m_vertices.append(vertices[3]);
 }
 
 void BatchRenderer::draw(sf::RenderWindow &window) const {

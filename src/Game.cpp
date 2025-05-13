@@ -25,7 +25,7 @@ Game::Game()
       m_threadPool(ThreadUtils::calculateSafeWorkerThreads()) {
   m_window.create(sf::VideoMode({Constants::WIDTH, Constants::HEIGHT}),
                   "SFML Playground");
-  m_window.setVerticalSyncEnabled(true);
+  m_window.setVerticalSyncEnabled(false);
   m_windowSize = sf::Vector2f(Constants::WIDTH, Constants::HEIGHT);
   m_objects.clear();
 
@@ -46,6 +46,8 @@ void Game::processKeyPressed(const sf::Event::KeyPressed &keyPressed) {
     case sf::Keyboard::Key::D:
       m_toggleDebug = !m_toggleDebug;
       break;
+    case sf::Keyboard::Key::Delete:
+      if (!m_objects.empty()) m_objects.pop_back();
     default:
       break;
   }
@@ -205,7 +207,7 @@ void Game::render() {
 
     if (!m_toggleDebug) continue;
     if (const auto *ball = dynamic_cast<Ball *>(object.get())) {
-      DebugDraw::addDirectionLine(m_debugLines, ball, m_window);
+      // DebugDraw::addDirectionLine(m_debugLines, ball, m_window);
       DebugDraw::addVelocityLine(m_debugLines, ball);
     }
   }

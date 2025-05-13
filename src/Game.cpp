@@ -36,6 +36,7 @@ Game::Game()
 }
 
 void Game::processKeyPressed(const sf::Event::KeyPressed &keyPressed) {
+  const auto mousePos = sf::Mouse::getPosition(m_window);
   switch (keyPressed.code) {
     case sf::Keyboard::Key::Equal:
       m_timeScale = std::min(10.0f, m_timeScale + 0.25f);
@@ -48,6 +49,11 @@ void Game::processKeyPressed(const sf::Event::KeyPressed &keyPressed) {
       break;
     case sf::Keyboard::Key::Delete:
       if (!m_objects.empty()) m_objects.pop_back();
+      break;
+    case sf::Keyboard::Key::Insert:
+      spawnBall(sf::Vector2f(static_cast<float>(mousePos.x),
+                             static_cast<float>(mousePos.y)));
+      break;
     default:
       break;
   }
@@ -224,7 +230,7 @@ void Game::render() {
     const size_t threadCount = m_threadPool.getThreadCount();
     const size_t ballsPerThread = m_objects.size() / threadCount;
     m_debugOverlay.update(m_drawCallCount + 2, m_timeScale, m_window,
-                          threadCount, ballsPerThread);
+                          threadCount, m_objects.size(), ballsPerThread);
     m_debugOverlay.draw(m_window);
   }
 

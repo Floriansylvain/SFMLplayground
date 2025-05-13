@@ -21,7 +21,7 @@ DebugOverlay::DebugOverlay(const std::string &fontPath)
 
 void DebugOverlay::update(const int drawCalls, const float timeScale,
                           const sf::RenderWindow &window,
-                          const size_t threadCount,
+                          const size_t threadCount, const size_t totalBalls,
                           const size_t ballsPerThread) {
   const float frameTime = m_fpsClock.restart().asSeconds();
 
@@ -54,7 +54,9 @@ void DebugOverlay::update(const int drawCalls, const float timeScale,
   oss << "Mouse: " << mousePos.x << ", " << mousePos.y << "\n";
   oss << "Time scale: " << timeScale << "\n";
   oss << "\nThreads: " << threadCount;
-  oss << "\nBalls per thread: " << ballsPerThread;
+  oss << "\nBalls per thread: " << ballsPerThread << "\n";
+
+  oss << "\nTotal Balls: " << totalBalls;
 
   m_text.setString(oss.str());
 }

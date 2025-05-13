@@ -10,7 +10,7 @@ class DebugOverlay {
   explicit DebugOverlay(const std::string &fontPath);
 
   void update(int drawCalls, float timeScale, const sf::RenderWindow &window,
-              size_t threadCount, size_t ballsPerThread);
+              size_t threadCount, size_t totalBalls, size_t ballsPerThread);
 
   void draw(sf::RenderWindow &window) const;
 

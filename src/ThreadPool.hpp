@@ -1,3 +1,4 @@
+
 #pragma once
 #include <condition_variable>
 #include <functional>
@@ -10,63 +11,33 @@
 class ThreadPool {
  public:
   explicit ThreadPool(size_t numThreads);
-
   ~ThreadPool();
 
   [[nodiscard]] size_t getThreadCount() const { return workers.size(); }
 
+  void resize(size_t newSize);
+
   template <class F, class... Args>
-  auto enqueue(F &&f, Args &&...args)
-      -> std::future<std::invoke_result_t<F, Args...> >;
+  auto enqueue(F&& f, Args&&... args)
+      -> std::future<std::invoke_result_t<F, Args...>>;
 
  private:
+  void stopAllWorkers();
+  void startWorkers(size_t numWorkers);
+
   std::vector<std::thread> workers;
-
-  std::queue<std::function<void()> > tasks;
-
+  std::queue<std::function<void()>> tasks;
   std::mutex queueMutex;
   std::condition_variable condition;
-  bool stop;
+  bool stop{false};
 };
 
-inline ThreadPool::ThreadPool(const size_t numThreads) : stop(false) {
-  for (size_t i = 0; i < numThreads; ++i) {
-    workers.emplace_back([this] {
-      while (true) {
-        std::function<void()> task;
-        {
-          std::unique_lock lock(this->queueMutex);
-          this->condition.wait(
-              lock, [this] { return this->stop || !this->tasks.empty(); });
-
-          if (this->stop && this->tasks.empty()) return;
-
-          task = std::move(this->tasks.front());
-          this->tasks.pop();
-        }
-
-        task();
-      }
-    });
-  }
-}
-
-inline ThreadPool::~ThreadPool() {
-  {
-    std::unique_lock lock(queueMutex);
-    stop = true;
-  }
-  condition.notify_all();
-
-  for (auto &worker : workers) worker.join();
-}
-
 template <class F, class... Args>
-auto ThreadPool::enqueue(F &&f, Args &&...args)
-    -> std::future<std::invoke_result_t<F, Args...> > {
+auto ThreadPool::enqueue(F&& f, Args&&... args)
+    -> std::future<std::invoke_result_t<F, Args...>> {
   using return_type = std::invoke_result_t<F, Args...>;
 
-  auto task = std::make_shared<std::packaged_task<return_type()> >(
+  auto task = std::make_shared<std::packaged_task<return_type()>>(
       std::bind(std::forward<F>(f), std::forward<Args>(args)...));
 
   std::future<return_type> res = task->get_future();

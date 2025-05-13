@@ -164,10 +164,14 @@ void Game::update() {
 }
 
 void Game::updateBallsParallel(float dt) {
-  const size_t chunkSize =
-      std::max(static_cast<size_t>(1),
-               m_objects.size() / std::thread::hardware_concurrency());
+  const size_t optimalThreads =
+      ThreadUtils::calculateOptimalThreads(m_objects.size());
+  if (m_threadPool.getThreadCount() != optimalThreads) {
+    m_threadPool.resize(optimalThreads);
+  }
 
+  const size_t chunkSize =
+      std::max(static_cast<size_t>(1), m_objects.size() / optimalThreads);
   std::vector<std::future<void>> futures;
 
   for (size_t i = 0; i < m_objects.size(); i += chunkSize) {
